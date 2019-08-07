@@ -25,9 +25,12 @@ import (
 )
 
 var pathParamRE *regexp.Regexp
+var fieldNameRE *regexp.Regexp
 
 func init() {
 	pathParamRE = regexp.MustCompile("{[.;?]?([^{}*]+)\\*?}")
+	fieldNameRE = regexp.MustCompile("[[:^ascii:]]")
+
 }
 
 // Uppercase the first character in a string. This assumes UTF-8, so we have
@@ -301,6 +304,16 @@ func SchemaNameToTypeName(name string) string {
 	if unicode.IsDigit([]rune(name)[0]) {
 		name = "N" + name
 	}
+	return name
+}
+
+func SchemaNameToSafeFieldName(name string) string {
+	name = ToCamelCase(name)
+	// Prepend "N" to schemas starting with a number
+	if unicode.IsDigit([]rune(name)[0]) {
+		name = "N" + name
+	}
+	name = fieldNameRE.ReplaceAllLiteralString(name, "")
 	return name
 }
 

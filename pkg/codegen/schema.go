@@ -59,7 +59,7 @@ type Property struct {
 }
 
 func (p Property) GoFieldName() string {
-	return SchemaNameToTypeName(p.JsonFieldName)
+	return SchemaNameToSafeFieldName(p.JsonFieldName)
 }
 
 func (p Property) GoTypeDef() string {
