@@ -36,7 +36,6 @@ func main() {
 		generate    string
 		outputFile  string
 	)
-	fmt.Println("Custom version")
 	flag.StringVar(&packageName, "package", "", "The package name for generated code")
 	flag.StringVar(&generate, "generate", "types,client,server,spec",
 		`Comma-separated list of code to generate; valid options: "types", client", "server", "spec"  (default types,client,server,"spec")`)
