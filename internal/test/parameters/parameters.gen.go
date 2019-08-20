@@ -10,9 +10,9 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	"github.com/rickardl/oapi-codegen/pkg/runtime"
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/labstack/echo/v4"
+	"github.com/rickardl/oapi-codegen/pkg/runtime"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -33,35 +33,35 @@ type Object struct {
 
 // GetCookieParams defines parameters for GetCookie.
 type GetCookieParams struct {
-	P  *int32         `json:"p,omitempty"`
-	Ep *int32         `json:"ep,omitempty"`
-	Ea *[]int32       `json:"ea,omitempty"`
-	A  *[]int32       `json:"a,omitempty"`
-	Eo *Object        `json:"eo,omitempty"`
-	O  *Object        `json:"o,omitempty"`
-	Co *ComplexObject `json:"co,omitempty"`
+	P  *int32   `json:"p,omitempty"`
+	Ep *int32   `json:"ep,omitempty"`
+	Ea *[]int32 `json:"ea,omitempty"`
+	A  *[]int32 `json:"a,omitempty"`
+	Eo *Object  `json:"eo,omitempty"`
+	O  *Object  `json:"o,omitempty"`
+	Co *string  `json:"co,omitempty"`
 }
 
 // GetHeaderParams defines parameters for GetHeader.
 type GetHeaderParams struct {
-	XPrimitive         *int32         `json:"X-Primitive,omitempty"`
-	XPrimitiveExploded *int32         `json:"X-Primitive-Exploded,omitempty"`
-	XArrayExploded     *[]int32       `json:"X-Array-Exploded,omitempty"`
-	XArray             *[]int32       `json:"X-Array,omitempty"`
-	XObjectExploded    *Object        `json:"X-Object-Exploded,omitempty"`
-	XObject            *Object        `json:"X-Object,omitempty"`
-	XComplexObject     *ComplexObject `json:"X-Complex-Object,omitempty"`
+	XPrimitive         *int32   `json:"X-Primitive,omitempty"`
+	XPrimitiveExploded *int32   `json:"X-Primitive-Exploded,omitempty"`
+	XArrayExploded     *[]int32 `json:"X-Array-Exploded,omitempty"`
+	XArray             *[]int32 `json:"X-Array,omitempty"`
+	XObjectExploded    *Object  `json:"X-Object-Exploded,omitempty"`
+	XObject            *Object  `json:"X-Object,omitempty"`
+	XComplexObject     *string  `json:"X-Complex-Object,omitempty"`
 }
 
 // GetQueryFormParams defines parameters for GetQueryForm.
 type GetQueryFormParams struct {
-	Ea *[]int32       `json:"ea,omitempty"`
-	A  *[]int32       `json:"a,omitempty"`
-	Eo *Object        `json:"eo,omitempty"`
-	O  *Object        `json:"o,omitempty"`
-	Ep *int32         `json:"ep,omitempty"`
-	P  *int32         `json:"p,omitempty"`
-	Co *ComplexObject `json:"co,omitempty"`
+	Ea *[]int32 `json:"ea,omitempty"`
+	A  *[]int32 `json:"a,omitempty"`
+	Eo *Object  `json:"eo,omitempty"`
+	O  *Object  `json:"o,omitempty"`
+	Ep *int32   `json:"ep,omitempty"`
+	P  *int32   `json:"p,omitempty"`
+	Co *string  `json:"co,omitempty"`
 }
 
 // RequestEditorFn  is the function signature for the RequestEditor callback function
@@ -84,7 +84,7 @@ type Client struct {
 // The interface specification for the client above.
 type ClientInterface interface {
 	// GetContentObject request
-	GetContentObject(ctx context.Context, param ComplexObject) (*http.Response, error)
+	GetContentObject(ctx context.Context, param string) (*http.Response, error)
 
 	// GetCookie request
 	GetCookie(ctx context.Context, params *GetCookieParams) (*http.Response, error)
@@ -138,7 +138,7 @@ type ClientInterface interface {
 	GetSimplePrimitive(ctx context.Context, param int32) (*http.Response, error)
 }
 
-func (c *Client) GetContentObject(ctx context.Context, param ComplexObject) (*http.Response, error) {
+func (c *Client) GetContentObject(ctx context.Context, param string) (*http.Response, error) {
 	req, err := NewGetContentObjectRequest(c.Server, param)
 	if err != nil {
 		return nil, err
@@ -409,7 +409,7 @@ func (c *Client) GetSimplePrimitive(ctx context.Context, param int32) (*http.Res
 }
 
 // NewGetContentObjectRequest generates requests for GetContentObject
-func NewGetContentObjectRequest(server string, param ComplexObject) (*http.Request, error) {
+func NewGetContentObjectRequest(server string, param string) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -1440,7 +1440,7 @@ func (r getSimplePrimitiveResponse) StatusCode() int {
 }
 
 // GetContentObjectWithResponse request returning *GetContentObjectResponse
-func (c *ClientWithResponses) GetContentObjectWithResponse(ctx context.Context, param ComplexObject) (*getContentObjectResponse, error) {
+func (c *ClientWithResponses) GetContentObjectWithResponse(ctx context.Context, param string) (*getContentObjectResponse, error) {
 	rsp, err := c.GetContentObject(ctx, param)
 	if err != nil {
 		return nil, err
@@ -1978,7 +1978,7 @@ func ParsegetSimplePrimitiveResponse(rsp *http.Response) (*getSimplePrimitiveRes
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
 	// (GET /contentObject/{param})
-	GetContentObject(ctx echo.Context, param ComplexObject) error
+	GetContentObject(ctx echo.Context, param string) error
 	// (GET /cookie)
 	GetCookie(ctx echo.Context, params GetCookieParams) error
 	// (GET /header)
@@ -2024,7 +2024,7 @@ type ServerInterfaceWrapper struct {
 func (w *ServerInterfaceWrapper) GetContentObject(ctx echo.Context) error {
 	var err error
 	// ------------- Path parameter "param" -------------
-	var param ComplexObject
+	var param string
 
 	err = json.Unmarshal([]byte(ctx.Param("param")), &param)
 	if err != nil {
@@ -2111,7 +2111,7 @@ func (w *ServerInterfaceWrapper) GetCookie(ctx echo.Context) error {
 
 	if cookie, err := ctx.Cookie("co"); err == nil {
 
-		var value ComplexObject
+		var value string
 		var decoded string
 		decoded, err := url.QueryUnescape(cookie.Value)
 		if err != nil {
@@ -2230,7 +2230,7 @@ func (w *ServerInterfaceWrapper) GetHeader(ctx echo.Context) error {
 	}
 	// ------------- Optional header parameter "X-Complex-Object" -------------
 	if valueList, found := headers[http.CanonicalHeaderKey("X-Complex-Object")]; found {
-		var XComplexObject ComplexObject
+		var XComplexObject string
 		n := len(valueList)
 		if n != 1 {
 			return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Expected one value for X-Complex-Object, got %d", n))
@@ -2459,7 +2459,7 @@ func (w *ServerInterfaceWrapper) GetQueryForm(ctx echo.Context) error {
 	// ------------- Optional query parameter "co" -------------
 	if paramValue := ctx.QueryParam("co"); paramValue != "" {
 
-		var value ComplexObject
+		var value string
 		err = json.Unmarshal([]byte(paramValue), &value)
 		if err != nil {
 			return echo.NewHTTPError(http.StatusBadRequest, "Error unmarshaling parameter 'co' as JSON")
