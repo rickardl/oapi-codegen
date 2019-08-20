@@ -97,6 +97,10 @@ func (r *RequestBuilder) WithAcceptJson() *RequestBuilder {
 	return r.WithAccept("application/json")
 }
 
+func (r *RequestBuilder) WithAcceptScim() *RequestBuilder {
+	return r.WithAccept("application/scim+json")
+}
+
 // Request body operations
 
 func (r *RequestBuilder) WithBody(body []byte) *RequestBuilder {
@@ -170,6 +174,8 @@ func (c *CompletedRequest) UnmarshalBodyToObject(obj interface{}) error {
 
 	switch strings.TrimSpace(contentParts[0]) {
 	case "application/json":
+		return json.Unmarshal(c.Recorder.Body.Bytes(), obj)
+	case "application/scim+json":
 		return json.Unmarshal(c.Recorder.Body.Bytes(), obj)
 	default:
 		return fmt.Errorf("no Content-Type on response")

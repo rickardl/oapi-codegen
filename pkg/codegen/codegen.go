@@ -355,6 +355,30 @@ func GenerateTypesForResponses(t *template.Template, responses openapi3.Response
 			}
 			types = append(types, typeDef)
 		}
+
+		scimResponse, found := response.Content["application/scim+json"]
+		if found {
+			goType, err := GenerateGoSchema(scimResponse.Schema, []string{responseName})
+			if err != nil {
+				return nil, errors.Wrap(err, fmt.Sprintf("error generating Go type for schema in response %s", responseName))
+			}
+
+			typeDef := TypeDefinition{
+				JsonName: responseName,
+				Schema:   goType,
+				TypeName: SchemaNameToTypeName(responseName),
+			}
+
+			if responseOrRef.Ref != "" {
+				// Generate a reference type for referenced parameters
+				refType, err := RefPathToGoType(responseOrRef.Ref)
+				if err != nil {
+					return nil, errors.Wrap(err, fmt.Sprintf("error generating Go type for (%s) in parameter %s", responseOrRef.Ref, responseName))
+				}
+				typeDef.TypeName = SchemaNameToTypeName(refType)
+			}
+			types = append(types, typeDef)
+		}
 	}
 	return types, nil
 }
@@ -373,6 +397,30 @@ func GenerateTypesForRequestBodies(t *template.Template, bodies map[string]*open
 		jsonBody, found := response.Content["application/json"]
 		if found {
 			goType, err := GenerateGoSchema(jsonBody.Schema, []string{bodyName})
+			if err != nil {
+				return nil, errors.Wrap(err, fmt.Sprintf("error generating Go type for schema in body %s", bodyName))
+			}
+
+			typeDef := TypeDefinition{
+				JsonName: bodyName,
+				Schema:   goType,
+				TypeName: SchemaNameToTypeName(bodyName),
+			}
+
+			if bodyOrRef.Ref != "" {
+				// Generate a reference type for referenced bodies
+				refType, err := RefPathToGoType(bodyOrRef.Ref)
+				if err != nil {
+					return nil, errors.Wrap(err, fmt.Sprintf("error generating Go type for (%s) in body %s", bodyOrRef.Ref, bodyName))
+				}
+				typeDef.TypeName = SchemaNameToTypeName(refType)
+			}
+			types = append(types, typeDef)
+		}
+
+		scimBody, found := response.Content["application/scim+json"]
+		if found {
+			goType, err := GenerateGoSchema(scimBody.Schema, []string{bodyName})
 			if err != nil {
 				return nil, errors.Wrap(err, fmt.Sprintf("error generating Go type for schema in body %s", bodyName))
 			}

@@ -15,6 +15,7 @@ package codegen
 
 import (
 	"fmt"
+
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/pkg/errors"
 
@@ -29,7 +30,7 @@ var fieldNameRE *regexp.Regexp
 
 func init() {
 	pathParamRE = regexp.MustCompile("{[.;?]?([^{}*]+)\\*?}")
-	fieldNameRE = regexp.MustCompile("[[:^ascii:]]")
+	fieldNameRE = regexp.MustCompile("[^[:alnum:]]")
 
 }
 
@@ -307,6 +308,8 @@ func SchemaNameToTypeName(name string) string {
 	return name
 }
 
+// SchemaNameToSafeFieldName converts a Schema name to a valid Go Field name. It converts to camel case, and makes sure the name is
+// valid in Go
 func SchemaNameToSafeFieldName(name string) string {
 	name = ToCamelCase(name)
 	// Prepend "N" to schemas starting with a number
@@ -314,6 +317,7 @@ func SchemaNameToSafeFieldName(name string) string {
 		name = "N" + name
 	}
 	name = fieldNameRE.ReplaceAllLiteralString(name, "")
+
 	return name
 }
 

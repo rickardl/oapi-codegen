@@ -58,6 +58,20 @@ func (pd *ParameterDefinition) IsJson() bool {
 		_, found := p.Content["application/json"]
 		return found
 	}
+
+	if len(p.Content) == 1 {
+		_, found := p.Content["application/scim+json"]
+		return found
+	}
+	return false
+}
+
+func (pd *ParameterDefinition) IsScim() bool {
+	p := pd.Spec
+	if len(p.Content) == 1 {
+		_, found := p.Content["application/scim+json"]
+		return found
+	}
 	return false
 }
 
@@ -442,6 +456,9 @@ func GenerateBodyDefinitions(operationID string, bodyOrRef *openapi3.RequestBody
 
 		switch contentType {
 		case "application/json":
+			tag = "JSON"
+			defaultBody = true
+		case "application/scim+json":
 			tag = "JSON"
 			defaultBody = true
 		default:

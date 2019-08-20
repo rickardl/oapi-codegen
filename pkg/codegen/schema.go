@@ -406,6 +406,15 @@ func paramToGoType(param *openapi3.Parameter, path []string) (Schema, error) {
 	// At this point, we have a content type. We know how to deal with
 	// application/json, but if multiple formats are present, we can't do anything,
 	// so we'll return the parameter as a string, not bothering to decode it.
+
+	mt, found := param.Content["application/scim+json"]
+	if !found {
+		// If we don't have json, it's a string
+		return Schema{
+			GoType: "string",
+		}, nil
+	}
+
 	if len(param.Content) > 1 {
 		return Schema{
 			GoType: "string",
