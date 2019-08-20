@@ -29,7 +29,7 @@ write a lot of boilerplate code to perform all the marshalling and unmarshalling
 into objects which match the OpenAPI 3.0 definition. The code generator in this
 directory does a lot of that for you. You would run it like so:
 
-    go get github.com/deepmap/oapi-codegen/cmd/oapi-codegen
+    go get github.com/rickardl/oapi-codegen/cmd/oapi-codegen
     oapi-codegen petstore-expanded.yaml  > petstore.gen.go
 
 Let's go through that `petstore.gen.go` file to show you everything which was
@@ -206,7 +206,7 @@ func (a NewPet) MarshalJSON() ([]byte, error) {...}w
 There are many special cases for `additionalProperties`, such as having to
 define types for inner fields which themselves support additionalProperties, and
 all of them are tested via the `internal/test/components` schemas and tests. Please
-look through those tests for more usage examples. 
+look through those tests for more usage examples.
 
 ## Generated Client Boilerplate
 
@@ -279,7 +279,7 @@ The Client object above is fairly flexible, since you can pass in your own
 headers. In our middleware stack, we annotate the context with additional
 information such as the request ID and function tracing information, and we
 use the callback to propagate that information into the request headers. Still, we
-can't foresee all possible usages, so those functions call through to helper 
+can't foresee all possible usages, so those functions call through to helper
 functions which create requests. In the case of the pet store, we have:
 
 ```
@@ -321,7 +321,7 @@ There are some caveats to using this code.
  for anything other than trivial objects, they can marshal to arbitrary JSON
  structures. When you send them as cookie (`in: cookie`) arguments, we will
  URL encode them, since JSON delimiters aren't allowed in cookies.
- 
+
 ## Using `oapi-codegen`
 
 The default options for `oapi-codegen` will generate everything; client, server,
@@ -338,10 +338,10 @@ you can specify any combination of those.
  present in its package.
 - `spec`: embed the OpenAPI spec into the generated code as a gzipped blob. This
  is useful for creating runtime validators.
- 
+
 So, for example, if you would like to produce only the server code, you could
 run `oapi-generate --generate types,server`. You could generate `types` and `server`
-into separate files, but both are required for the server code.  
+into separate files, but both are required for the server code.
 
 ## What's missing or incomplete
 

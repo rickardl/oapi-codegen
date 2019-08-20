@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"testing"
 
-	examplePetstore "github.com/deepmap/oapi-codegen/examples/petstore-expanded/api"
+	examplePetstore "github.com/rickardl/oapi-codegen/examples/petstore-expanded/api"
 
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/golangci/lint-1"
@@ -196,7 +196,7 @@ paths:
 
 components:
   schemas:
-  
+
     Test:
       properties:
         name:
