@@ -171,7 +171,7 @@ func genResponseUnmarshal(operationID string, responses openapi3.Responses) stri
 				}
 
 			// SCIM+JSON:
-			case StringInArray(contentTypeName, contentTypesJSON):
+			case StringInArray(contentTypeName, contentTypesSCIM):
 				attributeName := fmt.Sprintf("JSON%s", ToCamelCase(responseName))
 				caseAction := fmt.Sprintf("response.%s = &%s{} \n if err := json.Unmarshal(bodyBytes, response.%s); err != nil { \n return nil, err \n}", attributeName, goType.TypeDecl(), attributeName)
 				if responseName == "default" {
