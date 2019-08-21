@@ -26,6 +26,7 @@ import (
 
 var (
 	contentTypesJSON   = []string{echo.MIMEApplicationJSON, "text/x-json"}
+	contentTypesSCIM   = []string{echo.MIMEApplicationJSON, "application/scim+json"}
 	contentTypesYAML   = []string{"application/yaml", "application/x-yaml", "text/yaml", "text/x-yaml"}
 	contentTypesXML    = []string{echo.MIMEApplicationXML, echo.MIMETextXML}
 	responseTypeSuffix = "Response"
@@ -169,6 +170,18 @@ func genResponseUnmarshal(operationID string, responses openapi3.Responses) stri
 					mostSpecific[caseClause] = caseAction
 				}
 
+			// SCIM+JSON:
+			case StringInArray(contentTypeName, contentTypesJSON:
+				attributeName := fmt.Sprintf("JSON%s", ToCamelCase(responseName))
+				caseAction := fmt.Sprintf("response.%s = &%s{} \n if err := json.Unmarshal(bodyBytes, response.%s); err != nil { \n return nil, err \n}", attributeName, goType.TypeDecl(), attributeName)
+				if responseName == "default" {
+					caseClause := fmt.Sprintf("case strings.Contains(rsp.Header.Get(\"%s\"), \"json\"):", echo.HeaderContentType)
+					leastSpecific[caseClause] = caseAction
+				} else {
+					caseClause := fmt.Sprintf("case strings.Contains(rsp.Header.Get(\"%s\"), \"json\") && rsp.StatusCode == %s:", echo.HeaderContentType, responseName)
+					mostSpecific[caseClause] = caseAction
+				}
+
 			// YAML:
 			case StringInArray(contentTypeName, contentTypesYAML):
 				attributeName := fmt.Sprintf("YAML%s", ToCamelCase(responseName))
@@ -239,15 +252,15 @@ func getResponseTypeDefinitions(op *OperationDefinition) []TypeDefinition {
 // This function map is passed to the template engine, and we can call each
 // function here by keyName from the template code.
 var TemplateFunctions = template.FuncMap{
-	"genParamArgs":         genParamArgs,
-	"genParamTypes":        genParamTypes,
-	"genParamNames":        genParamNames,
-	"genParamFmtString":    genParamFmtString,
-	"swaggerUriToEchoUri":  SwaggerUriToEchoUri,
-	"lcFirst":              LowercaseFirstCharacter,
-	"camelCase":            ToCamelCase,
-	"genResponsePayload":   genResponsePayload,
-	"genResponseTypeName":  genResponseTypeName,
-	"genResponseUnmarshal": genResponseUnmarshal,
+	"genParamArgs":               genParamArgs,
+	"genParamTypes":              genParamTypes,
+	"genParamNames":              genParamNames,
+	"genParamFmtString":          genParamFmtString,
+	"swaggerUriToEchoUri":        SwaggerUriToEchoUri,
+	"lcFirst":                    LowercaseFirstCharacter,
+	"camelCase":                  ToCamelCase,
+	"genResponsePayload":         genResponsePayload,
+	"genResponseTypeName":        genResponseTypeName,
+	"genResponseUnmarshal":       genResponseUnmarshal,
 	"getResponseTypeDefinitions": getResponseTypeDefinitions,
 }
