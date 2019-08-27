@@ -311,12 +311,19 @@ func SchemaNameToTypeName(name string) string {
 // SchemaNameToSafeFieldName converts a Schema name to a valid Go Field name. It converts to camel case, and makes sure the name is
 // valid in Go
 func SchemaNameToSafeFieldName(name string) string {
+
 	name = ToCamelCase(name)
+
+	firstRune := []rune(name)[0]
 	// Prepend "N" to schemas starting with a number
-	if unicode.IsDigit([]rune(name)[0]) {
+	if unicode.IsDigit(firstRune) {
 		name = "N" + name
 	}
 	name = fieldNameRE.ReplaceAllLiteralString(name, "")
+	firstRune = []rune(name)[0]
+	if unicode.IsLower(firstRune) {
+		name = string(unicode.ToUpper(firstRune))
+	}
 
 	return name
 }
