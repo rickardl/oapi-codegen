@@ -322,7 +322,9 @@ func SchemaNameToSafeFieldName(name string) string {
 	name = fieldNameRE.ReplaceAllLiteralString(name, "")
 	firstRune = []rune(name)[0]
 	if unicode.IsLower(firstRune) {
-		name = string(unicode.ToUpper(firstRune))
+		tmp := []rune(name)
+		tmp[0] = unicode.ToUpper(firstRune)
+		name = string(tmp)
 	}
 
 	return name
